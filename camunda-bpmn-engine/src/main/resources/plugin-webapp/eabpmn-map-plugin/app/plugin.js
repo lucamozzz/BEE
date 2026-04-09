@@ -53,32 +53,20 @@ export default {
       return;
     }
 
-    var parent = diagramContainer.parentElement;
+    var parent = diagramContainer.parentElement.parentElement.parentElement.parentElement.parentElement;
+    var bpmnContainer = parent.children[1];
+    bpmnContainer.style.width = '50%';
 
     // Avoid double-mount
     if (parent.querySelector('[data-eabpmn-osm-panel="true"]')) {
       return;
     }
 
-    // Do NOT modify diagram layout; render overlay panel instead
-    parent.classList.add('eabpmnMapHost');
 
     var panel = document.createElement('div');
     panel.setAttribute('data-eabpmn-osm-panel', 'true');
     panel.className = 'eabpmnMapPanel';
 
-    var header = document.createElement('div');
-    header.className = 'eabpmnMapPanelHeader';
-    var title = document.createElement('div');
-    title.textContent = 'Modeler';
-
-    var closeBtn = document.createElement('button');
-    closeBtn.className = 'eabpmnMapCloseBtn';
-    closeBtn.type = 'button';
-    closeBtn.setAttribute('aria-label', 'Close map');
-    closeBtn.textContent = '×';
-    header.appendChild(title);
-    header.appendChild(closeBtn);
 
     var body = document.createElement('div');
     body.className = 'eabpmnMapPanelBody';
@@ -93,22 +81,8 @@ export default {
     iframe.src = url;
 
     body.appendChild(iframe);
-    panel.appendChild(header);
     panel.appendChild(body);
     parent.appendChild(panel);
-
-    function cleanup() {
-      try {
-        if (panel && panel.parentElement) {
-          panel.parentElement.removeChild(panel);
-        }
-      } catch (e) {
-        // ignore
-      }
-      parent.classList.remove('eabpmnMapHost');
-    }
-
-    closeBtn.addEventListener('click', cleanup);
 
     // Expose context for future integration / postMessage wiring
     panel.__eabpmnProcessDefinitionId = data && data.processDefinitionId;
@@ -118,7 +92,7 @@ export default {
 
     // Cockpit plugin API supports optional unmount() for cleanup
     return {
-      unmount: cleanup
+     
     };
   }
 };
