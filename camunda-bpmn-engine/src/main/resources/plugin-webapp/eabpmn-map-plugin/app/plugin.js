@@ -42,6 +42,38 @@ function tryGetDiagramContainer(viewer) {
 
 var ENVIRONMENT_URL = '/environment.html';
 
+/**
+ * After the diagram column is narrowed (50% + side panel), bpmn-js must be told the
+ * viewport changed, then zoom can refit. Adjust behavior here:
+ * - 'fit-viewport' (default): fit whole diagram in the visible area (best after split)
+ * - number (e.g. 0.85): relative zoom vs current (if your Cockpit/bpmn-js build supports it)
+ */
+var BPMN_CANVAS_ZOOM_AFTER_SPLIT = 'fit-viewport';
+
+function refitBpmnCanvas(viewer) {
+  try {
+    var canvas = viewer.get('canvas');
+    if (!canvas || typeof canvas.zoom !== 'function') {
+      return;
+    }
+    if (typeof canvas.resized === 'function') {
+      canvas.resized();
+    }
+    canvas.zoom(BPMN_CANVAS_ZOOM_AFTER_SPLIT);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function scheduleRefitBpmnCanvas(viewer) {
+  // Let the browser apply width/layout before measuring the diagram viewport
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      refitBpmnCanvas(viewer);
+    });
+  });
+}
+
 export default {
   id: 'eabpmn-osm-sidepanel',
   pluginPoint: 'cockpit.processDefinition.diagram.plugin',
@@ -57,8 +89,9 @@ export default {
     var bpmnContainer = parent.children[1];
     bpmnContainer.style.width = '50%';
 
-    // Avoid double-mount
+    // Avoid double-mount of the iframe panel; still refit BPMN when diagram changes
     if (parent.querySelector('[data-eabpmn-osm-panel="true"]')) {
+      scheduleRefitBpmnCanvas(viewer);
       return;
     }
 
@@ -83,6 +116,8 @@ export default {
     body.appendChild(iframe);
     panel.appendChild(body);
     parent.appendChild(panel);
+
+    scheduleRefitBpmnCanvas(viewer);
 
     // Expose context for future integration / postMessage wiring
     panel.__eabpmnProcessDefinitionId = data && data.processDefinitionId;
