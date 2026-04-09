@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.unicam.intermediate.models.pojo.LogicalPlace;
 import org.unicam.intermediate.models.pojo.PhysicalPlace;
 import org.unicam.intermediate.models.pojo.Participant;
 import org.unicam.intermediate.service.environmental.EnvironmentDataService;
+import org.unicam.intermediate.service.environmental.layers.EnvironmentLayerRepository;
 import org.unicam.intermediate.service.environmental.EnvironmentalTaskRegistry;
 import org.unicam.intermediate.service.environmental.SensorDataService;
 import org.unicam.intermediate.service.environmental.binding.BindingTaskRegistry;
@@ -35,6 +37,7 @@ public class EnvironmentController {
 
     private final EnvironmentDataService environmentDataService;
     private final ParticipantDataService participantDataService;
+    private final EnvironmentLayerRepository environmentLayerRepository;
     private final EnvironmentalTaskRegistry environmentalTaskRegistry;
     private final MovementTaskRegistry movementTaskRegistry;
     private final BindingTaskRegistry bindingTaskRegistry;
@@ -63,8 +66,16 @@ public class EnvironmentController {
     }
 
     @GetMapping("/pp")
-    public ResponseEntity<Response<List<PhysicalPlace>>> getPhysicalPlaces() {
+    public ResponseEntity<Response<List<PhysicalPlace>>> getPhysicalPlaces(
+            @RequestParam(name = "processDefinitionId", required = false) String processDefinitionId) {
         try {
+            if (processDefinitionId != null && !processDefinitionId.isBlank()) {
+                return environmentLayerRepository.findBundleByProcessDefinitionId(processDefinitionId)
+                        .map(bundle -> ResponseEntity.ok(Response.ok(bundle.getPhysicalPlaces())))
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Response.error("No environment mapped to processDefinitionId: " + processDefinitionId)));
+            }
+
             List<PhysicalPlace> physicalPlaces = environmentDataService.getPhysicalPlaces();
             return ResponseEntity.ok(Response.ok(physicalPlaces));
         } catch (Exception e) {
@@ -75,8 +86,16 @@ public class EnvironmentController {
     }
 
     @GetMapping("/lp")
-    public ResponseEntity<Response<List<LogicalPlace>>> getLogicalPlaces() {
+    public ResponseEntity<Response<List<LogicalPlace>>> getLogicalPlaces(
+            @RequestParam(name = "processDefinitionId", required = false) String processDefinitionId) {
         try {
+            if (processDefinitionId != null && !processDefinitionId.isBlank()) {
+                return environmentLayerRepository.findBundleByProcessDefinitionId(processDefinitionId)
+                        .map(bundle -> ResponseEntity.ok(Response.ok(bundle.getLogicalPlaces())))
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Response.error("No environment mapped to processDefinitionId: " + processDefinitionId)));
+            }
+
             List<LogicalPlace> logicalPlaces = environmentDataService.getLogicalPlaces();
             return ResponseEntity.ok(Response.ok(logicalPlaces));
         } catch (Exception e) {
@@ -87,8 +106,16 @@ public class EnvironmentController {
     }
 
     @GetMapping("/edges")
-    public ResponseEntity<Response<List<Edge>>> getEdges() {
+    public ResponseEntity<Response<List<Edge>>> getEdges(
+            @RequestParam(name = "processDefinitionId", required = false) String processDefinitionId) {
         try {
+            if (processDefinitionId != null && !processDefinitionId.isBlank()) {
+                return environmentLayerRepository.findBundleByProcessDefinitionId(processDefinitionId)
+                        .map(bundle -> ResponseEntity.ok(Response.ok(bundle.getEdges())))
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Response.error("No environment mapped to processDefinitionId: " + processDefinitionId)));
+            }
+
             List<Edge> edges = environmentDataService.getEdges();
             return ResponseEntity.ok(Response.ok(edges));
         } catch (Exception e) {

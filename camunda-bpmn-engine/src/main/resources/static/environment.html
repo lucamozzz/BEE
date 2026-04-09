@@ -296,6 +296,7 @@
     const logicalPlacesEl = document.getElementById("logicalPlaces");
     const REFRESH_MS = 2000;
     const logicalOpenIds = new Set();
+    const PROCESS_DEFINITION_ID = new URLSearchParams(window.location.search).get("processDefinitionId");
 
     const DEFAULT_POLYGON_STYLE = {
       color: "#cf2424",
@@ -724,10 +725,11 @@
 
     async function fetchEnvironment() {
       try {
+        const query = PROCESS_DEFINITION_ID ? ("?processDefinitionId=" + encodeURIComponent(PROCESS_DEFINITION_ID)) : "";
         const [physicalResponse, logicalResponse, edgesResponse, participantsResponse] = await Promise.all([
-          fetch("/api/environment/pp", { cache: "no-store" }),
-          fetch("/api/environment/lp", { cache: "no-store" }),
-          fetch("/api/environment/edges", { cache: "no-store" }),
+          fetch("/api/environment/pp" + query, { cache: "no-store" }),
+          fetch("/api/environment/lp" + query, { cache: "no-store" }),
+          fetch("/api/environment/edges" + query, { cache: "no-store" }),
           fetch("/api/environment/participants", { cache: "no-store" })
         ]);
 

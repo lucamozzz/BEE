@@ -110,7 +110,8 @@ export default {
     iframe.allow = 'clipboard-read; clipboard-write';
     iframe.referrerPolicy = 'no-referrer';
 
-    var url = ENVIRONMENT_URL;
+    var processDefinitionId = data && data.processDefinitionId ? String(data.processDefinitionId) : '';
+    var url = ENVIRONMENT_URL + (processDefinitionId ? ('?processDefinitionId=' + encodeURIComponent(processDefinitionId)) : '');
     iframe.src = url;
 
     body.appendChild(iframe);
