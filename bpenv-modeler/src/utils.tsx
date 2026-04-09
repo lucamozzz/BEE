@@ -4,7 +4,7 @@ import { Polygon, LineString, Point, Geometry } from 'ol/geom';
 import { Extent, extend, isEmpty } from 'ol/extent';
 import { Draw, Snap, Select } from 'ol/interaction';
 import { Style, Fill, Stroke, Text } from 'ol/style';
-import { OSM } from 'ol/source';
+import XYZ from 'ol/source/XYZ';
 import { Tile as TileLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
@@ -23,7 +23,13 @@ export function initMap(mapRef: HTMLDivElement): Map {
     useGeographic();
     const map = new Map({
         layers: [new TileLayer({
-            source: new OSM(),
+            // tile.openstreetmap.org often returns 403 in Electron (Referer / usage policy).
+            // Carto CDN basemap is friendlier for embedded desktop apps; keep OSM data attribution.
+            source: new XYZ({
+                url: 'https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                attributions:
+                    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions">CARTO</a>',
+            }),
             zIndex: 0,
         })],
         target: mapRef,
