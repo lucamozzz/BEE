@@ -7,7 +7,7 @@ type ModalProps = {
 
 const Modal = ({ title, onClose, children, footer }: ModalProps) => {
   return (
-    <div className="modal d-block" tabIndex={-1} role="dialog">
+    <div className="modal d-block position-fixed" tabIndex={-1} role="dialog">
       <div className="modal-dialog" role="document">
         <div className="modal-content bg-dark text-white">
           <div className="modal-header">
