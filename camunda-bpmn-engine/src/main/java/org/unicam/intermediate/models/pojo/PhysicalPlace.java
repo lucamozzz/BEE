@@ -1,5 +1,7 @@
 package org.unicam.intermediate.models.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +13,7 @@ import java.util.Map;
 
 @Setter
 @Getter
+@JsonIgnoreProperties({"locationArea"})
 public class PhysicalPlace {
     private String id;
     private String name;
@@ -19,6 +22,8 @@ public class PhysicalPlace {
     @JsonDeserialize(using = AttributesMapDeserializer.class)
     private Map<String, Object> attributes;
 
+    /** Derived from {@link #coordinates}; ignore JSON so stored env blobs can include an expanded polygon without Jackson needing a LocationArea bean creator. */
+    @JsonIgnore
     private transient LocationArea locationArea;
 
     public LocationArea getLocationArea() {
