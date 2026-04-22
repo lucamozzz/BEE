@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useEnvStore } from '../envStore';
 import Modal from './shared/Modal';
+import type { Edge, LogicalPlace, PhysicalPlace, View } from '../envTypes';
 
 type DeployedProcess = {
   id: string;
@@ -9,6 +10,14 @@ type DeployedProcess = {
   version: number;
   deploymentId: string;
   state: string;
+  environment: DeployedEnvironment | null;
+};
+
+type DeployedEnvironment = {
+  physicalPlaces: PhysicalPlace[];
+  edges: Edge[];
+  logicalPlaces: LogicalPlace[];
+  views: View[];
 };
 
 type ApiResponse<T> = {
@@ -95,6 +104,14 @@ const Header = () => {
     }
   };
 
+  const handleLoadEnvironment = (environment: DeployedEnvironment | null) => {
+    if (!environment) {
+      return;
+    }
+    setModel(environment);
+    setShowDeploymentsModal(false);
+  };
+
   return (
     <>
       <nav className="navbar navbar-dark bg-dark px-3 d-flex justify-content-between align-items-center">
@@ -149,6 +166,7 @@ const Header = () => {
                     <th>State</th>
                     <th>Name</th>
                     <th>Version</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -162,6 +180,18 @@ const Header = () => {
                       </td>
                       <td>{p.name || '-'}</td>
                       <td>{p.version}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-info btn-sm"
+                          onClick={() => handleLoadEnvironment(p.environment)}
+                          disabled={!p.environment}
+                          title={p.environment ? 'Load environment on map' : 'No environment available'}
+                          aria-label={p.environment ? 'Load environment on map' : 'No environment available'}
+                        >
+                          🗺️
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

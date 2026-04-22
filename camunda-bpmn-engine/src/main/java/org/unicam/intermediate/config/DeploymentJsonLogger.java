@@ -9,7 +9,7 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.Collaboration;
 import org.camunda.bpm.model.bpmn.instance.Participant;
 import org.camunda.bpm.model.bpmn.instance.Process;
-import org.unicam.intermediate.service.environmental.layers.EnvironmentLayerRepository;
+import org.unicam.intermediate.service.environmental.layers.EnvironmentLayerService;
 import org.unicam.intermediate.service.participant.ParticipantDataService;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,17 +43,17 @@ public class DeploymentJsonLogger {
 
     private final RepositoryService repositoryService;
     private final ParticipantDataService participantDataService;
-    private final EnvironmentLayerRepository environmentLayerRepository;
+    private final EnvironmentLayerService environmentLayerService;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private final Set<String> seenDeploymentIds = ConcurrentHashMap.newKeySet();
 
     public DeploymentJsonLogger(RepositoryService repositoryService,
                                 ParticipantDataService participantDataService,
-                                EnvironmentLayerRepository environmentLayerRepository) {
+                                EnvironmentLayerService environmentLayerService) {
         this.repositoryService = repositoryService;
         this.participantDataService = participantDataService;
-        this.environmentLayerRepository = environmentLayerRepository;
+        this.environmentLayerService = environmentLayerService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -195,14 +195,14 @@ public class DeploymentJsonLogger {
                     hasLogical ? viewsNode : Collections.emptyList()
             );
 
-            String physicalLayerId = environmentLayerRepository.insertPhysicalLayer(
+            String physicalLayerId = environmentLayerService.insertPhysicalLayer(
                     source, deploymentId, resourceName, physicalPlacesJson, edgesJson
             );
-            String logicalLayerId = environmentLayerRepository.insertLogicalLayer(
+            String logicalLayerId = environmentLayerService.insertLogicalLayer(
                     source, deploymentId, resourceName, physicalLayerId, logicalPlacesJson, viewsJson
             );
 
-            environmentLayerRepository.upsertCollaborationLayer(deploymentId, logicalLayerId);
+            environmentLayerService.upsertCollaborationLayer(deploymentId, logicalLayerId);
 
             StoredLayerInfo info = new StoredLayerInfo(
                     physicalLayerId,
@@ -302,7 +302,7 @@ public class DeploymentJsonLogger {
             String logicalLayerId = layers.get(0).logicalLayerId;
             for (ProcessDefinition pd : processDefinitions) {
                 if (pd == null || pd.getId() == null) continue;
-                environmentLayerRepository.upsertProcessDefinitionLayer(pd.getId(), deploymentId, logicalLayerId);
+                environmentLayerService.upsertProcessDefinitionLayer(pd.getId(), deploymentId, logicalLayerId);
             }
             log.info("[DeploymentJsonLogger] Mapped {} process definitions to the only logical layer {}", processDefinitions.size(), logicalLayerId);
             return;
@@ -324,7 +324,7 @@ public class DeploymentJsonLogger {
                 continue;
             }
 
-            environmentLayerRepository.upsertProcessDefinitionLayer(pd.getId(), deploymentId, best.logicalLayerId);
+            environmentLayerService.upsertProcessDefinitionLayer(pd.getId(), deploymentId, best.logicalLayerId);
             mapped++;
             log.info("[DeploymentJsonLogger] Mapped pool participantId='{}' processId='{}' -> processDefinitionId='{}' using env='{}'",
                     pool.participantId, pool.processId, pd.getId(), best.resourceName);
@@ -359,7 +359,7 @@ public class DeploymentJsonLogger {
                 for (int i = 0; i < orderedLayers.size(); i++) {
                     StoredLayerInfo layer = orderedLayers.get(i);
                     ProcessDefinition pd = orderedProcessDefinitions.get(i);
-                    environmentLayerRepository.upsertProcessDefinitionLayer(pd.getId(), deploymentId, layer.logicalLayerId);
+                    environmentLayerService.upsertProcessDefinitionLayer(pd.getId(), deploymentId, layer.logicalLayerId);
                     log.info("[DeploymentJsonLogger] Order-mapped processDefinitionKey='{}' id='{}' -> env='{}'",
                             pd.getKey(), pd.getId(), layer.resourceName);
                 }
@@ -372,7 +372,7 @@ public class DeploymentJsonLogger {
             String logicalLayerId = layers.get(0).logicalLayerId;
             for (ProcessDefinition pd : processDefinitions) {
                 if (pd == null || pd.getId() == null) continue;
-                environmentLayerRepository.upsertProcessDefinitionLayer(pd.getId(), deploymentId, logicalLayerId);
+                environmentLayerService.upsertProcessDefinitionLayer(pd.getId(), deploymentId, logicalLayerId);
             }
             log.warn("[DeploymentJsonLogger] Could not resolve per-pool mapping for deployment {} and order-based mapping not applicable (processes={}, envJsons={}). Fell back to mapping all processes to '{}'",
                     deploymentId, processDefinitions.size(), layers.size(), layers.get(0).resourceName);
