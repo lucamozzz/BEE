@@ -3,6 +3,7 @@ import { LogicalPlace as LogicalPlaceType, PhysicalPlace } from '../../../envTyp
 import { useEnvStore } from '../../../envStore';
 import LogicalPlaceEditor from './LogicalPlaceEditor';
 import { highlightFeature, unhighlightFeature, fitFeaturesOnMap } from '../../../utils';
+import Modal from '../../shared/Modal';
 
 const LogicalPlace = ({ item }: { item: LogicalPlaceType }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,27 +86,15 @@ const LogicalPlace = ({ item }: { item: LogicalPlaceType }) => {
       </li>
 
       {isModalOpen && (
-        <div className="modal d-block" tabIndex={-1} role="dialog">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content bg-dark text-white">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit Logical Place</h5>
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  aria-label="Close"
-                  onClick={() => setIsModalOpen(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <LogicalPlaceEditor
-                  initialPlace={item}
-                  onSave={() => setIsModalOpen(false)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Edit Logical Place"
+          onClose={() => setIsModalOpen(false)}
+        >
+          <LogicalPlaceEditor
+            initialPlace={item}
+            onSave={() => setIsModalOpen(false)}
+          />
+        </Modal>
       )}
     </>
   );

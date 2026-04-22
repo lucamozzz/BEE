@@ -73,7 +73,7 @@ const PhysicalElement = ({ element, type }: Props) => {
         // }
       }}
     >
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between align-items-center gap-3">
         <input
           className="form-control form-control-md border-0 bg-transparent text-white p-0 custom-placeholder no-focus-outline"
           value={newName}
@@ -85,7 +85,8 @@ const PhysicalElement = ({ element, type }: Props) => {
         />
         <div className="btn-group btn-group-sm">
           <button
-            className="btn btn-outline-light p-1 me-1"
+            className="btn btn-outline-light btn-sm px-2"
+            style={{ minWidth: "30px" }}
             onClick={() => {
               const updatedAttributes = { ...element.attributes };
               updatedAttributes['key'] = 'value';
@@ -100,7 +101,8 @@ const PhysicalElement = ({ element, type }: Props) => {
             +
           </button>
           <button
-            className="btn btn-outline-danger p-1"
+            className="btn btn-outline-danger btn-sm px-2"
+            style={{ minWidth: "30px" }}
             onClick={handleDelete}
             title="Delete"
             hidden={!isEditable}

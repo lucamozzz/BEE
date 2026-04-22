@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useEnvStore } from '../envStore';
+import Modal from './shared/Modal';
 
 type DeployedProcess = {
   id: string;
@@ -123,69 +124,51 @@ const Header = () => {
       </nav>
 
       {showDeploymentsModal && (
-        <div
-          className="modal fade show"
-          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setShowDeploymentsModal(false)}
+        <Modal
+          title="Deployed Processes"
+          onClose={() => setShowDeploymentsModal(false)}
         >
-          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content bg-dark text-light border-secondary">
-              <div className="modal-header border-secondary">
-                <h5 className="modal-title">Deployed Processes</h5>
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  aria-label="Close"
-                  onClick={() => setShowDeploymentsModal(false)}
-                />
-              </div>
-              <div className="modal-body">
-                {isLoadingDeployments && (
-                  <p className="mb-0">Loading deployed processes...</p>
-                )}
+          {isLoadingDeployments && <p className="mb-0">Loading deployed processes...</p>}
 
-                {!isLoadingDeployments && deploymentsError && (
-                  <div className="alert alert-danger mb-0">
-                    Failed to load deployed processes: {deploymentsError}
-                  </div>
-                )}
-
-                {!isLoadingDeployments && !deploymentsError && deployedProcesses.length === 0 && (
-                  <p className="mb-0">No deployed process definitions found.</p>
-                )}
-
-                {!isLoadingDeployments && !deploymentsError && deployedProcesses.length > 0 && (
-                  <div className="table-responsive">
-                    <table className="table table-dark table-sm align-middle mb-0">
-                      <thead>
-                      <tr>
-                        <th>Key</th>
-                        <th>State</th>
-                        <th>Name</th>
-                        <th>Version</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {deployedProcesses.map((p) => (
-                        <tr key={p.id}>
-                          <td>{p.key}</td>
-                          <td>
-                            <span className={`badge ${p.state === 'ACTIVE' ? 'bg-success' : 'bg-secondary'}`}>
-                              {p.state}
-                            </span>
-                          </td>
-                          <td>{p.name || '-'}</td>
-                          <td>{p.version}</td>
-                        </tr>
-                      ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
+          {!isLoadingDeployments && deploymentsError && (
+            <div className="alert alert-danger mb-0">
+              Failed to load deployed processes: {deploymentsError}
             </div>
-          </div>
-        </div>
+          )}
+
+          {!isLoadingDeployments && !deploymentsError && deployedProcesses.length === 0 && (
+            <p className="mb-0">No deployed process definitions found.</p>
+          )}
+
+          {!isLoadingDeployments && !deploymentsError && deployedProcesses.length > 0 && (
+            <div className="table-responsive">
+              <table className="table table-dark table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>State</th>
+                    <th>Name</th>
+                    <th>Version</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deployedProcesses.map((p) => (
+                    <tr key={p.id}>
+                      <td>{p.key}</td>
+                      <td>
+                        <span className={`badge ${p.state === 'ACTIVE' ? 'bg-success' : 'bg-secondary'}`}>
+                          {p.state}
+                        </span>
+                      </td>
+                      <td>{p.name || '-'}</td>
+                      <td>{p.version}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal>
       )}
     </>
   );
