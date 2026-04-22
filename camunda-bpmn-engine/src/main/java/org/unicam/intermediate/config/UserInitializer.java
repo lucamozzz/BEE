@@ -98,7 +98,12 @@ public class UserInitializer {
                     }
                 }
 
-                identityService.createMembership("aa", "admins");
+                if (!isUserInGroup("aa", "admins")) {
+                    identityService.createMembership("aa", "admins");
+                    log.info("[UserInitializer] Added aa to admins group");
+                } else {
+                    log.info("[UserInitializer] aa already in admins group");
+                }
 
                 // Print summary
                 log.info("[UserInitializer] ========================================");
