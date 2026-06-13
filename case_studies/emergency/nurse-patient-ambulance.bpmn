@@ -16,6 +16,7 @@
         <space:type>binding</space:type>
         <space:participant1>Participant_2abc123</space:participant1>
         <space:participant2>Participant_3def456</space:participant2>
+        <space:connectionMode>static</space:connectionMode>
       </bpmn:extensionElements>
     </bpmn:messageFlow>
     <bpmn:messageFlow id="Flow_0hatos0" sourceRef="Activity_0zhyuds" targetRef="Activity_0p98ust">
